@@ -1,14 +1,14 @@
 # Response by message
-messageEnable: true
+messageEnable: false
 message: "Please don't use inappropriate word"
 
 # Response by command
-commandEnable: true
+commandEnable: false
 command: "warn %player% inappropriate word"
 
 # World list
 words:
-  - word1
-  - word2
-  - word3
-  - more words
+  - word
+  - word
+  - word
+  - word
