@@ -1,0 +1,10 @@
+name: NoBypass
+author: OVERLOAD48
+version: '${project.version}'
+main: com.arctic.NoBypass
+
+commands:
+  nobypass:
+    description: Reload NoBypass config file
+    permission: nobypass.reload
+    permission-message: You can not use that command!
