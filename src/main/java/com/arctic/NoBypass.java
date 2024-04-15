@@ -24,7 +24,6 @@ public class NoBypass extends JavaPlugin implements Listener {
         getLogger().info(ChatColor.GREEN + "NoBypass has been enabled");
     }
 
-
         FileConfiguration config = getConfig();
         List<String> swearWords = config.getStringList("words");
         Boolean isMsgTrue = config.getBoolean("messageEnable", false);
@@ -32,17 +31,19 @@ public class NoBypass extends JavaPlugin implements Listener {
         Boolean isTrue = config.getBoolean("commandEnable", false);
 
 
-
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        String message = event.getMessage().toLowerCase();
         Player player = event.getPlayer();
-        for (String word : swearWords) {
-            Pattern pattern = Pattern.compile("\\b" + Pattern.quote(word.toLowerCase()) + "\\b");
-            Matcher matcher = pattern.matcher(message);
-            if (matcher.find()) {
+        String message = event.getMessage().toLowerCase();
+
+        String filteredMessage = message.replaceAll("[^a-z]", "");;
+
+        String[] words = filteredMessage.split("\\s+");
+
+        for (int i = 0; i < words.length; i++) {
+            if (swearWords.contains(words[i].toLowerCase())) {
                 event.setCancelled(true);
-                if(isMsgTrue.equals(true)) {
+                if (isMsgTrue.equals(true)) {
                     player.sendMessage(ChatColor.RED + responses);
                 }
                 if (isTrue.equals(true)) {
@@ -83,4 +84,3 @@ public class NoBypass extends JavaPlugin implements Listener {
     }
 
 }
-
