@@ -1,5 +1,5 @@
 name: NoBypass
-author: OVERLOAD48
+author: OVERLOAD48, Larrox
 version: '${project.version}'
 main: com.arctic.NoBypass
 
