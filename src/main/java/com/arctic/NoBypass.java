@@ -43,6 +43,15 @@ public class NoBypass extends JavaPlugin implements Listener, TabCompleter {
         isTrue = config.getBoolean("commandEnable", false);
     }
 
+    private String replacePlaceholders(String message, Player player) {
+        message = message.replace("%player%", player.getName());
+        message = message.replace("%displayname%", player.getDisplayName());
+        message = message.replace("%adress%", player.getAddress().getHostString());
+        message = message.replace("%level%", String.valueOf(player.getLevel()));
+        message = message.replace("%ping%", String.valueOf(player.getPing()));
+        return message;
+    }
+
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
@@ -54,7 +63,8 @@ public class NoBypass extends JavaPlugin implements Listener, TabCompleter {
             if (swearWords.contains(word)) {
                 event.setCancelled(true);
                 if (isMsgTrue) {
-                    player.sendMessage(ChatColor.RED + responses);
+                    String finalMessage = replacePlaceholders(responses, player);
+                    player.sendMessage(ChatColor.RED + finalMessage);
                 }
                 if (isTrue) {
                     punishPlayer(player);
@@ -72,8 +82,8 @@ public class NoBypass extends JavaPlugin implements Listener, TabCompleter {
         for (String word : swearWords) {
             if (command.contains(word)) {
                 event.setCancelled(true);
-                
-                player.sendMessage(responsecommand);
+                String finalResponse = replacePlaceholders(responsecommand, player);
+                player.sendMessage(finalResponse);
                 return;
             }
         }

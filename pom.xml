@@ -6,7 +6,7 @@
 
   <groupId>com.arctic</groupId>
   <artifactId>NoBypass</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <packaging>jar</packaging>
 
   <name>NoBypass</name>
