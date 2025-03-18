@@ -1,112 +1,58 @@
 package com.arctic;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import com.arctic.events.PlayerChat;
+import com.arctic.events.PlayerCommand;
+import com.arctic.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
-public class NoBypass extends JavaPlugin implements Listener, TabCompleter {
-    private List<String> swearWords;
-    private boolean isMsgTrue;
-    private String responses;
-    private String responsecommand;
-    private boolean isTrue;
-    private String prefix = "§8[§aNoBypass§8] §7";
+public class NoBypass extends JavaPlugin implements Listener {
+
+    private Util util;
+
+    public Set<String> swearWords;
+    public boolean isMessageEnabled;
+    public String responseOnMessage;
+    public String responseOnCommand;
+    public boolean isPunishCmdEnabled;
 
     @Override
     public void onEnable() {
+        util = new Util(this);
+
         getServer().getPluginManager().registerEvents(this, this);
-        getCommand("nobypass").setExecutor(this::reloadCommand);
+        getServer().getPluginManager().registerEvents(new PlayerCommand(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerChat(this), this);
+
         saveDefaultConfig();
-        loadConfigValues();
+        util.loadConfigValues();
     }
 
-    private void loadConfigValues() {
-        FileConfiguration config = getConfig();
-        swearWords = config.getStringList("words").stream()
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
-        isMsgTrue = config.getBoolean("messageEnable", false);
-        responses = config.getString("message", "");
-        responsecommand = config.getString("command-message", "");
-        isTrue = config.getBoolean("commandEnable", false);
-    }
-
-    private String replacePlaceholders(String message, Player player) {
-        message = message.replace("%player%", player.getName());
-        message = message.replace("%displayname%", player.getDisplayName());
-        message = message.replace("%adress%", player.getAddress().getHostString());
-        message = message.replace("%level%", String.valueOf(player.getLevel()));
-        message = message.replace("%ping%", String.valueOf(player.getPing()));
-        return message;
-    }
-
-    @EventHandler
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
-        Player player = event.getPlayer();
-        String message = event.getMessage().toLowerCase();
-
-        String[] words = message.split("\\s+");
-
-        for (String word : words) {
-            if (swearWords.contains(word)) {
-                event.setCancelled(true);
-                if (isMsgTrue) {
-                    String finalMessage = replacePlaceholders(responses, player);
-                    player.sendMessage(ChatColor.RED + finalMessage);
-                }
-                if (isTrue) {
-                    punishPlayer(player);
-                }
-                return;
-            }
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (label.equalsIgnoreCase("nobypass")) {
+            PlayerCommand playerCommand = new PlayerCommand(this);
+            return playerCommand.reloadCommand(sender, command, label, args);
         }
+        return false;
     }
 
-    @EventHandler
-    public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-        Player player = event.getPlayer();
-        String command = event.getMessage().toLowerCase();
+    public boolean containsSwearWord(String text) {
+        return swearWords.stream().anyMatch(text::contains);
+    }
 
-        for (String word : swearWords) {
-            if (command.contains(word)) {
-                event.setCancelled(true);
-                String finalResponse = replacePlaceholders(responsecommand, player);
-                player.sendMessage(finalResponse);
-                return;
-            }
+    public void onSwearWord(Player player, boolean command) {
+        if (isMessageEnabled) {
+            String message = util.replacePlaceholders(command ? responseOnCommand : responseOnMessage, player);
+            player.sendMessage(message);
         }
-    }
 
-    public boolean reloadCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            reloadConfig();
-            loadConfigValues();
-            sender.sendMessage(prefix + "config §asuccessfully§7 reloaded.");
-            return true;
-        } else {
-            sender.sendMessage(prefix + "Usage: §c/nobypass reload");
-            return false;
-        }
-    }
-
-    private void punishPlayer(Player player) {
-        FileConfiguration config = getConfig();
-        String command = config.getString("command");
-        if (command != null) {
-            String executedCommand = command.replace("%player%", player.getName());
-            getServer().getScheduler().runTask(this, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), executedCommand));
+        if (isPunishCmdEnabled) {
+            util.punishPlayer(player);
         }
     }
 }

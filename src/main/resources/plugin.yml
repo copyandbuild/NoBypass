@@ -8,3 +8,5 @@ commands:
     description: Reload NoBypass config file
     permission: nobypass.reload
     permission-message: You can not use that command!
+    aliases:
+      - nobypassx

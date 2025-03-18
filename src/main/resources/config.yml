@@ -17,8 +17,6 @@ command-message: "Please don't use inappropriate word in commands"
 commandEnable: false
 command: "warn %player% inappropriate word"
 
-
-
 # Word list
 words:
   - word
