@@ -5,11 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.arctic</groupId>
-  <artifactId>NoBypass</artifactId>
+  <artifactId>NoBypassX</artifactId>
   <version>1.1</version>
   <packaging>jar</packaging>
 
-  <name>NoBypass</name>
+  <name>NoBypassX</name>
 
   <properties>
     <java.version>1.8</java.version>
